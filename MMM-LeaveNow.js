@@ -103,9 +103,9 @@ Module.register("MMM-LeaveNow", {
         findNextEvent();
       } else if (delta <= self.config.leaveNowTime) {
         wrapper.innerHTML = sprintf("Leave now for {} via {}", self.event.title, route.summary);
-      } else if (minutes <= self.config.maxDisplayTime) {
+      } else if (delta <= self.config.maxDisplayTime) {
         // TODO: Improve message format
-        wrapper.innerHTML = sprintf("Leave in {} minutes for {} via {}", minutes, self.event.title, route.summary);
+        wrapper.innerHTML = sprintf("Leave in {} minutes for {} via {}", (delta / 60) | 0, self.event.title, route.summary);
       }
     } else if (self.event !== null) {
       //wrapper.innerHTML = sprintf("Fetching directions to {}", self.event.title);

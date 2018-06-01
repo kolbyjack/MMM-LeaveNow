@@ -26,7 +26,7 @@ module.exports = NodeHelper.create({
     var cacheKey = self.getCacheKey(event);
 
     if (cacheKey in self.cache && Date.now() < self.cache[cacheKey].expires) {
-      self.sendSocketNotification("LEAVENOW_DIRECTIONS", self.caache[cacheKey].directions);
+      self.sendSocketNotification("LEAVENOW_DIRECTIONS", self.cache[cacheKey].directions);
       return;
     }
 
