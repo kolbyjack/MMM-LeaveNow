@@ -2,12 +2,15 @@
 
 const NodeHelper = require("node_helper");
 const request = require("request");
+const crypto = require("crypto");
 
 module.exports = NodeHelper.create({
   start: function() {
     var self = this;
 
     console.log("Starting node helper for: " + self.name);
+
+    self.cache = {};
   },
 
   socketNotificationReceived: function(notification, payload) {
@@ -20,6 +23,12 @@ module.exports = NodeHelper.create({
 
   fetchData: function(event) {
     var self = this;
+    var cacheKey = self.getCacheKey(event);
+
+    if (cacheKey in self.cache && Date.now() < self.cache[cacheKey].expires) {
+      self.sendSocketNotification("LEAVENOW_DIRECTIONS", self.caache[cacheKey].directions);
+      return;
+    }
 
     request({
       url: "https://maps.googleapis.com/maps/api/directions/json",
@@ -38,8 +47,21 @@ module.exports = NodeHelper.create({
       }
 
       if (response.statusCode === 200) {
-        self.sendSocketNotification("LEAVENOW_DIRECTIONS", JSON.parse(body));
+        var directions = JSON.parse(body);
+
+        self.cache[cacheKey] = {
+          expires: Date.now() + event.config.updateInterval * 900,
+          directions: directions,
+        };
+
+        self.sendSocketNotification("LEAVENOW_DIRECTIONS", directions);
       }
     });
+  },
+
+  getCacheKey: function(event) {
+    let hash = crypto.createHash("sha1");
+    hash.update(event.config.origin + "::" + event.destination);
+    return hash.digest("base64");
   },
 });
