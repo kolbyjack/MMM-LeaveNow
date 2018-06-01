@@ -39,5 +39,9 @@ The following properties can be configured:
 |Option|Default|Description|
 |---|---|---|
 |`apikey`|`none`|Required.  The Google Directions API Key, see https://developers.google.com/maps/documentation/directions/get-api-key for more info.|
+|`leaveNowTime`|`5 * 60`|How long (in seconds) to show "Leave now" before the calculated time to leave.|
+|`maxDisplayTime`|`90 * 60`|Maximum time (in seconds) that the "Leave now" countdown will be shown.|
 |`origin`|`none`|Required.  The origin address to use when calculating directions.|
+|`overdueTimeout`|`15 * 60`|How long (in seconds) to show "Leave now" after the calculated time to leave.|
+|`parkTime`|`5 * 60`|How long (in seconds) to add to the estimated travel time to allow for parking.|
 |`updateInterval`|`5 * 60`|How often (in seconds) to check for updated travel time.|

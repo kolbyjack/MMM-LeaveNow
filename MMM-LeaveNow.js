@@ -16,6 +16,10 @@ Module.register("MMM-LeaveNow", {
   // Default module config
   defaults: {
     updateInterval: 5 * 60,
+    parkTime: 5 * 60,
+    overdueTimeout: 15 * 60,
+    leaveNowTime: 5 * 60,
+    maxDisplayTime: 90 * 60,
   },
 
   start: function() {
@@ -81,17 +85,27 @@ Module.register("MMM-LeaveNow", {
 
     wrapper.className += "small";
     if (self.directions !== null) {
-      // TODO: Check all routes for fastest
-      var now = new Date().getTime();
-      var parkTime = 5 * 60 * 1000;
-      var travelTime = self.directions.routes[0].legs[0].duration.value * 1000;
-      var delta = ((self.event.startDate.getTime() - now - parkTime - travelTime) * 0.001) | 0;
-      var minutes = (delta / 60) | 0;
+      var timeUntilEvent = ((self.event.startDate.getTime() - (new Date().getTime())) * 0.001) | 0;
+      var route = self.directions.routes.reduce(function(best, route) {
+        var routeTravelTime = route.legs.reduce(function(total, leg) {
+          return total + leg.duration.value;
+        }, 0);
 
-      if (minutes <= 90) {
+        if (best === undefined || routeTravelTime < best.travelTime) {
+          return { travelTime: routeTravelTime, summary: route.summary };
+        } else {
+          return best;
+        }
+      }, undefined);
+      var delta = timeUntilEvent - route.travelTime - self.config.parkTime;
+
+      if (delta < -self.config.overdueTimeout) {
+        findNextEvent();
+      } else if (delta <= self.config.leaveNowTime) {
+        wrapper.innerHTML = sprintf("Leave now for {} via {}", self.event.title, route.summary);
+      } else if (minutes <= self.config.maxDisplayTime) {
         // TODO: Improve message format
-        wrapper.innerHTML = sprintf("Leave in {} minutes for {} via {}",
-          minutes, self.event.title, self.directions.routes[0].summary);
+        wrapper.innerHTML = sprintf("Leave in {} minutes for {} via {}", minutes, self.event.title, route.summary);
       }
     } else if (self.event !== null) {
       //wrapper.innerHTML = sprintf("Fetching directions to {}", self.event.title);
