@@ -107,10 +107,10 @@ Module.register("MMM-LeaveNow", {
       if (delta < -self.config.overdueTimeout) {
         findNextEvent();
       } else if (delta <= self.config.leaveNowTime) {
-        wrapper.innerHTML = sprintf("Leave now for {} via {}", self.event.title, route.summary);
+        wrapper.innerHTML = sprintf("Leave now for {}", self.event.title);
       } else if (delta <= self.config.maxDisplayTime) {
         // TODO: Improve message format
-        wrapper.innerHTML = sprintf("Leave in {} minutes for {} via {}", (delta / 60) | 0, self.event.title, route.summary);
+        wrapper.innerHTML = sprintf("Leave in {} minutes for {}", (delta / 60) | 0, self.event.title);
       }
     } else if (self.event !== null) {
       //wrapper.innerHTML = sprintf("Fetching directions to {}", self.event.title);
