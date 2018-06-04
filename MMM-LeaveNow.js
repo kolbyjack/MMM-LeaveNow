@@ -20,6 +20,7 @@ Module.register("MMM-LeaveNow", {
     overdueTimeout: 15 * 60,
     leaveNowTime: 5 * 60,
     maxDisplayTime: 90 * 60,
+    maxCheckTime: 24 * 60 * 60
   },
 
   start: function() {
@@ -66,10 +67,14 @@ Module.register("MMM-LeaveNow", {
         self.updateTimer = null;
       }
     } else if (self.event.startDate > now) {
-      self.sendSocketNotification("LEAVENOW_FETCH", {
-        config: self.config,
-        destination: self.event.location,
-      });
+      if ((self.event.startDate - now) * 0.001 <= self.config.maxCheckTime) {
+        self.sendSocketNotification("LEAVENOW_FETCH", {
+          config: self.config,
+          destination: self.event.location,
+        });
+      } else {
+        self.directions = null;
+      }
 
       if (self.updateTimer === null) {
         self.updateTimer = setInterval(function() { self.getData(); }, self.config.updateInterval * 1000);

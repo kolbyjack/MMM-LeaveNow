@@ -40,6 +40,7 @@ The following properties can be configured:
 |---|---|---|
 |`apikey`|`none`|Required.  The Google Directions API Key, see https://developers.google.com/maps/documentation/directions/get-api-key for more info.|
 |`leaveNowTime`|`5 * 60`|How long (in seconds) to show "Leave now" before the calculated time to leave.|
+|`maxCheckTime`|`24 * 60 * 60`|Maximum time (in seconds) before at event's start time that directions requests will be made.|
 |`maxDisplayTime`|`90 * 60`|Maximum time (in seconds) that the "Leave now" countdown will be shown.|
 |`origin`|`none`|Required.  The origin address to use when calculating directions.|
 |`overdueTimeout`|`15 * 60`|How long (in seconds) to show "Leave now" after the calculated time to leave.|
