@@ -21,9 +21,9 @@ module.exports = NodeHelper.create({
     }
   },
 
-  fetchData: function(event) {
+  fetchData: function(req) {
     var self = this;
-    var cacheKey = self.getCacheKey(event);
+    var cacheKey = self.getCacheKey(req);
 
     if (cacheKey in self.cache && Date.now() < self.cache[cacheKey].expires) {
       self.sendSocketNotification("LEAVENOW_DIRECTIONS", self.cache[cacheKey].directions);
@@ -33,9 +33,10 @@ module.exports = NodeHelper.create({
     request({
       url: "https://maps.googleapis.com/maps/api/directions/json",
       qs: {
-        origin: event.config.origin,
-        destination: event.destination,
-        key: event.config.apikey
+        origin: req.config.origin,
+        destination: req.event.location,
+        key: req.config.apikey,
+        arrival_time: ((new Date(req.event.startDate).getTime() - req.config.parkTime * 60 * 1000) * 0.001) | 0,
       },
       method: "GET",
       headers: { "cache-control": "no-cache" },
@@ -50,7 +51,7 @@ module.exports = NodeHelper.create({
         var directions = JSON.parse(body);
 
         self.cache[cacheKey] = {
-          expires: Date.now() + event.config.updateInterval * 900,
+          expires: Date.now() + req.config.updateInterval * 900,
           directions: directions,
         };
 
@@ -59,9 +60,9 @@ module.exports = NodeHelper.create({
     });
   },
 
-  getCacheKey: function(event) {
+  getCacheKey: function(req) {
     let hash = crypto.createHash("sha1");
-    hash.update(event.config.origin + "::" + event.destination);
+    hash.update(req.config.origin + "::" + req.event.location);
     return hash.digest("base64");
   },
 });

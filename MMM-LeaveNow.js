@@ -70,7 +70,7 @@ Module.register("MMM-LeaveNow", {
       if ((self.event.startDate - now) * 0.001 <= self.config.maxCheckTime) {
         self.sendSocketNotification("LEAVENOW_FETCH", {
           config: self.config,
-          destination: self.event.location,
+          event: self.event,
         });
       } else {
         self.directions = null;
