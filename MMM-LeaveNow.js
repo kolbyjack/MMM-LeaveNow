@@ -88,7 +88,7 @@ Module.register("MMM-LeaveNow", {
     var self = this;
     var wrapper = document.createElement("div");
 
-    wrapper.className += "small";
+    wrapper.className += "small bright";
     if (self.directions !== null) {
       var timeUntilEvent = ((self.event.startDate.getTime() - (new Date().getTime())) * 0.001) | 0;
       var route = self.directions.routes.reduce(function(best, route) {
