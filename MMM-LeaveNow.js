@@ -20,7 +20,8 @@ Module.register("MMM-LeaveNow", {
     overdueTimeout: 15 * 60,
     leaveNowTime: 5 * 60,
     maxDisplayTime: 90 * 60,
-    maxCheckTime: 24 * 60 * 60
+    maxCheckTime: 24 * 60 * 60,
+    useLocalFeed: false,
   },
 
   start: function() {
@@ -31,7 +32,7 @@ Module.register("MMM-LeaveNow", {
     self.directions = null;
     self.updateTimer = null;
 
-    setInterval(function() { self.updateDom(); }, 60 * 1000);
+    setInterval(function() { self.updateContent(); }, 60 * 1000);
   },
 
   notificationReceived: function(notification, payload) {
@@ -53,7 +54,7 @@ Module.register("MMM-LeaveNow", {
     if (notification === "LEAVENOW_DIRECTIONS") {
       // TODO: Verify directions are valid
       self.directions = payload;
-      self.updateDom();
+      self.updateContent();
     }
   },
 
@@ -89,32 +90,7 @@ Module.register("MMM-LeaveNow", {
     var wrapper = document.createElement("div");
 
     wrapper.className += "small bright";
-    if (self.directions !== null) {
-      var timeUntilEvent = ((self.event.startDate.getTime() - (new Date().getTime())) * 0.001) | 0;
-      var route = self.directions.routes.reduce(function(best, route) {
-        var routeTravelTime = route.legs.reduce(function(total, leg) {
-          return total + leg.duration.value;
-        }, 0);
-
-        if (best === undefined || routeTravelTime < best.travelTime) {
-          return { travelTime: routeTravelTime, summary: route.summary };
-        } else {
-          return best;
-        }
-      }, undefined);
-      var delta = timeUntilEvent - route.travelTime - self.config.parkTime;
-
-      if (delta < -self.config.overdueTimeout) {
-        self.findNextEvent();
-      } else if (delta <= self.config.leaveNowTime) {
-        wrapper.innerHTML = sprintf("Leave now for {}", self.event.title);
-      } else if (delta <= self.config.maxDisplayTime) {
-        // TODO: Improve message format
-        wrapper.innerHTML = sprintf("Leave in {} minutes for {}", (delta / 60) | 0, self.event.title);
-      }
-    } else if (self.event !== null) {
-      //wrapper.innerHTML = sprintf("Fetching directions to {}", self.event.title);
-    }
+    wrapper.innerHTML = self.getContent();
 
     return wrapper;
   },
@@ -134,7 +110,7 @@ Module.register("MMM-LeaveNow", {
           self.event = e;
           self.directions = null;
           self.getData();
-          self.updateDom();
+          self.updateContent();
         }
         return;
       }
@@ -142,6 +118,58 @@ Module.register("MMM-LeaveNow", {
 
     self.event = null;
     self.directions = null;
-    self.updateDom();
+    self.updateContent();
+  },
+
+  getContent: function() {
+    var self = this;
+
+    if (self.directions === null) {
+      if (self.event !== null) {
+        //return sprintf("Fetching directions to {}", self.event.title);
+      }
+      return "";
+    }
+
+    var timeUntilEvent = ((self.event.startDate.getTime() - (new Date().getTime())) * 0.001) | 0;
+    var route = self.directions.routes.reduce(function(best, route) {
+      var routeTravelTime = route.legs.reduce(function(total, leg) {
+        return total + leg.duration.value;
+      }, 0);
+
+      if (best === undefined || routeTravelTime < best.travelTime) {
+        return { travelTime: routeTravelTime, summary: route.summary };
+      } else {
+        return best;
+      }
+    }, undefined);
+
+    var delta = timeUntilEvent - route.travelTime - self.config.parkTime;
+    if (delta < -self.config.overdueTimeout) {
+      self.findNextEvent();
+    } else if (delta <= self.config.leaveNowTime) {
+      return sprintf("Leave now for {}", self.event.title);
+    } else if (delta <= self.config.maxDisplayTime) {
+      // TODO: Improve message format
+      return sprintf("Leave in {} minutes for {}", (delta / 60) | 0, self.event.title);
+    }
+
+    return "";
+  },
+
+  updateContent: function() {
+    var self = this;
+
+    if (self.config.useLocalFeed) {
+      var html = self.getContent();
+
+      if (html.length > 0) {
+        self.sendNotification("LOCALFEED_ADD_ITEM", { id: "directions", message: html, duration: 300 });
+      } else {
+        self.sendNotification("LOCALFEED_REMOVE_ITEM", { id: "directions" });
+      }
+    } else {
+      self.updateDom();
+    }
   }
 });
