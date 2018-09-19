@@ -164,7 +164,7 @@ Module.register("MMM-LeaveNow", {
       var html = self.getContent();
 
       if (html.length > 0) {
-        self.sendNotification("LOCALFEED_ADD_ITEM", { id: "directions", message: html, duration: 300 });
+        self.sendNotification("LOCALFEED_ADD_ITEM", { id: "directions", html: html, duration: 300 });
       } else {
         self.sendNotification("LOCALFEED_REMOVE_ITEM", { id: "directions" });
       }
