@@ -1,5 +1,5 @@
 # Module: MMM-LeaveNow
-The module allows you to add wallpapers from bing or reddit.  Useful for MagicMirror installations that aren't actually mirrors.
+The module allows you to use the [Google Directions API](https://developers.google.com/maps/documentation/directions/start) to know when to leave for the next appointment on your calendar.
 
 ## Installation
 
@@ -34,7 +34,6 @@ modules: [
 ## Configuration options
 
 The following properties can be configured:
-
 
 |Option|Default|Description|
 |---|---|---|
