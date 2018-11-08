@@ -163,10 +163,13 @@ Module.register("MMM-LeaveNow", {
     if (self.config.useLocalFeed) {
       var html = self.getContent();
 
-      if (html.length > 0) {
-        self.sendNotification("LOCALFEED_ADD_ITEM", { id: "directions", html: html, duration: 300 });
-      } else {
-        self.sendNotification("LOCALFEED_REMOVE_ITEM", { id: "directions" });
+      if (html !== self.lastContent) {
+        self.lastContent = html;
+        if (html.length > 0) {
+          self.sendNotification("LOCALFEED_ADD_ITEM", { id: "directions", html: html, duration: 300 });
+        } else {
+          self.sendNotification("LOCALFEED_REMOVE_ITEM", { id: "directions" });
+        }
       }
     } else {
       self.updateDom();
