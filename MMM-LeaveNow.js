@@ -31,6 +31,7 @@ Module.register("MMM-LeaveNow", {
     self.event = null;
     self.directions = null;
     self.updateTimer = null;
+    self.calendarTimer = null;
 
     setInterval(function() { self.updateContent(); }, 60 * 1000);
   },
@@ -44,7 +45,15 @@ Module.register("MMM-LeaveNow", {
         e.endDate = new Date(e.endDate);
         return e;
       });
-      self.findNextEvent();
+
+      if (self.calendarTimer !== null) {
+        clearTimeout(self.calendarTimer);
+      }
+
+      self.calendarTimer = setTimeout(() => {
+        self.calendarTimer = null;
+        self.findNextEvent();
+      }, 5000);
     }
   },
 
