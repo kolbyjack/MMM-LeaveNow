@@ -40,7 +40,7 @@ Module.register("MMM-LeaveNow", {
     var self = this;
 
     if (notification === "CALENDAR_EVENTS") {
-      self.events = payload.map(e => {
+      self.pendingEvents = payload.map(e => {
         e.startDate = new Date(e.startDate);
         e.endDate = new Date(e.endDate);
         return e;
@@ -52,6 +52,7 @@ Module.register("MMM-LeaveNow", {
 
       self.calendarTimer = setTimeout(() => {
         self.calendarTimer = null;
+        self.events = self.pendingEvents;
         self.findNextEvent();
       }, 5000);
     }
