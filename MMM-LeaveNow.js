@@ -160,6 +160,10 @@ Module.register("MMM-LeaveNow", {
       }
     }, undefined);
 
+    if (route === undefined) {
+      return sprintf("Unable to retrieve directions to {}", self.event.title);
+    }
+
     var delta = timeUntilEvent - route.travelTime - self.config.parkTime;
     if (delta < -self.config.overdueTimeout) {
       self.findNextEvent();
