@@ -112,7 +112,13 @@ Module.register("MMM-LeaveNow", {
     for (var i in self.events) {
       var e = self.events[i];
 
-      if (!e.fullDayEvent && e.startDate > now && e.location && e.location !== self.config.origin) {
+      if (!e.fullDayEvent &&
+          e.startDate > now &&
+          e.location &&
+          !e.location.toLowerCase().startsWith("http:") &&
+          !e.location.toLowerCase().startsWith("https:") &&
+          e.location !== self.config.origin)
+      {
         if (self.event === null ||
             self.event.location !== e.location ||
             self.event.startDate !== e.startDate)
