@@ -1,17 +1,5 @@
 // MMM-LeaveNow.js
 
-function sprintf(fmt) {
-  var parts = fmt.split("{}");
-  var message = parts[0];
-  var i;
-
-  for (i = 1; i < parts.length; ++i) {
-    message += arguments[i] + parts[i];
-  }
-
-  return message;
-}
-
 Module.register("MMM-LeaveNow", {
   // Default module config
   defaults: {
@@ -142,7 +130,7 @@ Module.register("MMM-LeaveNow", {
 
     if (self.directions === null) {
       if (self.event !== null) {
-        //return sprintf("Fetching directions to {}", self.event.title);
+        //return `Fetching directions to ${self.event.title}`;
       }
       return "";
     }
@@ -161,17 +149,17 @@ Module.register("MMM-LeaveNow", {
     }, undefined);
 
     if (route === undefined) {
-      return sprintf("Unable to retrieve directions to {}", self.event.title);
+      return `Unable to retrieve directions to ${self.event.title}`;
     }
 
     var delta = timeUntilEvent - route.travelTime - self.config.parkTime;
     if (delta < -self.config.overdueTimeout) {
       self.findNextEvent();
     } else if (delta <= self.config.leaveNowTime) {
-      return sprintf("Leave now for {}", self.event.title);
+      return `Leave now for ${self.event.title}`;
     } else if (delta <= self.config.maxDisplayTime) {
       // TODO: Improve message format
-      return sprintf("Leave in {} minutes for {}", (delta / 60) | 0, self.event.title);
+      return `Leave in ${(delta / 60) | 0} minutes for ${self.event.title}`;
     }
 
     return "";
