@@ -20,6 +20,7 @@ Module.register("MMM-LeaveNow", {
     self.directions = null;
     self.updateTimer = null;
     self.calendarTimer = null;
+    self.lastContent = "";
 
     setInterval(function() { self.updateContent(); }, 60 * 1000);
   },
@@ -130,7 +131,7 @@ Module.register("MMM-LeaveNow", {
 
     if (self.directions === null) {
       if (self.event !== null) {
-        //return `Fetching directions to ${self.event.title}`;
+        return self.lastContent;
       }
       return "";
     }
