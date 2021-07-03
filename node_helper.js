@@ -1,7 +1,7 @@
 "use strict";
 
 const NodeHelper = require("node_helper");
-const request = require("request");
+const https = require("https");
 const crypto = require("crypto");
 
 module.exports = NodeHelper.create({
@@ -21,6 +21,23 @@ module.exports = NodeHelper.create({
     }
   },
 
+  request: function(options, callback) {
+    var error = undefined;
+    var response = undefined;
+    var body = "";
+
+    const req = https.request(options.url, options, res => {
+      response = res;
+      res.on("data", chunk => body += chunk);
+      res.on("error", e => error = e);
+    });
+
+    req.on("error", e => error = e);
+    req.on("close", () => callback(error, response, body));
+
+    req.end(options.body);
+  },
+
   fetchData: function(req) {
     var self = this;
     var cacheKey = self.getCacheKey(req);
@@ -30,7 +47,7 @@ module.exports = NodeHelper.create({
       return;
     }
 
-    request({
+    self.request({
       url: "https://maps.googleapis.com/maps/api/directions/json",
       qs: {
         origin: req.config.origin,
